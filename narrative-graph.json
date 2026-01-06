@@ -1,0 +1,366 @@
+{
+  "version": "1.0.0",
+  "description": "Narrative structure for 1984 CLI game - defines all scenes, choices, and branching paths",
+  "nodes": {
+    "prologue_start": {
+      "id": "prologue_start",
+      "type": "scene",
+      "chapter": 0,
+      "title": "The Clocks Were Striking Thirteen",
+      "description": "Winston Smith enters Victory Mansions on a cold April day",
+      "requiredFlags": [],
+      "ascii_art_template": "victory_mansions_exterior",
+      "narrative": "It was a bright cold day in April, and the clocks were striking thirteen. Winston Smith, his chin nuzzled into his breast in an effort to escape the vile wind, slipped quickly through the glass doors of Victory Mansions, though not quickly enough to prevent a swirl of gritty dust from entering along with him.\n\nThe hallway smelt of boiled cabbage and old rag mats. At one end of it a colored poster, too large for indoor display, had been tacked to the wall. It depicted simply an enormous face, more than a meter wide: the face of a man of about forty-five, with a heavy black mustache and ruggedly handsome features.",
+      "choices": [
+        {
+          "id": "choice_observe_poster",
+          "text": "Stop and observe the Big Brother poster carefully",
+          "nextNode": "prologue_poster_observation",
+          "requirements": {},
+          "effects": {
+            "suspicion": 2,
+            "flags": ["observed_poster"]
+          }
+        },
+        {
+          "id": "choice_hurry_inside",
+          "text": "Hurry inside to your flat, avoiding attention",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "suspicion": -1,
+            "partyLoyalty": 2
+          }
+        },
+        {
+          "id": "choice_check_telescreen",
+          "text": "Glance nervously at the telescreen monitoring the entrance",
+          "nextNode": "prologue_telescreen_awareness",
+          "requirements": {},
+          "effects": {
+            "suspicion": 3,
+            "flags": ["telescreen_paranoid"]
+          }
+        }
+      ]
+    },
+    "prologue_poster_observation": {
+      "id": "prologue_poster_observation",
+      "type": "scene",
+      "chapter": 0,
+      "title": "Big Brother Is Watching You",
+      "description": "The enormous face gazes down from every commanding corner",
+      "requiredFlags": ["observed_poster"],
+      "ascii_art_template": "big_brother_poster",
+      "narrative": "BIG BROTHER IS WATCHING YOU, the caption beneath it ran.\n\nThe eyes follow you about when you move. Winston stared at the face. It was one of those pictures which are so contrived that the eyes follow you about. He turned away, feeling a peculiar uneasiness. Was he already being watched more closely than others?",
+      "choices": [
+        {
+          "id": "choice_show_reverence",
+          "text": "Straighten up and look with appropriate reverence",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "partyLoyalty": 5,
+            "suspicion": -3
+          }
+        },
+        {
+          "id": "choice_avert_eyes",
+          "text": "Quickly avert your eyes and proceed inside",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "partyLoyalty": -2,
+            "suspicion": 5
+          }
+        }
+      ]
+    },
+    "prologue_inside_flat": {
+      "id": "prologue_inside_flat",
+      "type": "scene",
+      "chapter": 0,
+      "title": "Victory Mansions, Flat 7",
+      "description": "Winston's sparse apartment with its watching telescreen",
+      "requiredFlags": [],
+      "ascii_art_template": "winston_flat",
+      "narrative": "Winston made for the stairs. It was no use trying the lift. Even at the best of times it was seldom working, and at present the electric current was cut off during daylight hours.\n\nInside the flat a fruity voice was reading out a list of figures which had something to do with the production of pig-iron. The voice came from an oblong metal plaque like a dulled mirror which formed part of the surface of the right-hand wall. The telescreen received and transmitted simultaneously. Any sound that Winston made, above the level of a very low whisper, would be picked up by it.",
+      "choices": [
+        {
+          "id": "choice_write_diary",
+          "text": "Sit in the alcove and begin writing in your forbidden diary",
+          "nextNode": "chapter1_diary_writing",
+          "requirements": {},
+          "effects": {
+            "partyLoyalty": -10,
+            "suspicion": 15,
+            "flags": ["diary_started", "first_thoughtcrime"]
+          }
+        },
+        {
+          "id": "choice_exercise",
+          "text": "Perform your morning exercises in front of the telescreen",
+          "nextNode": "prologue_morning_exercises",
+          "requirements": {},
+          "effects": {
+            "partyLoyalty": 8,
+            "suspicion": -5,
+            "flags": ["dutiful_citizen"]
+          }
+        },
+        {
+          "id": "choice_observe_window",
+          "text": "Look out the window at the Ministry of Truth",
+          "nextNode": "prologue_ministry_view",
+          "requirements": {},
+          "effects": {
+            "suspicion": 1,
+            "flags": ["observed_ministry"]
+          }
+        }
+      ]
+    },
+    "chapter1_diary_writing": {
+      "id": "chapter1_diary_writing",
+      "type": "scene",
+      "chapter": 1,
+      "title": "The First Thoughtcrime",
+      "description": "Winston commits his first act of rebellion",
+      "requiredFlags": ["diary_started"],
+      "ascii_art_template": "diary_page",
+      "narrative": "For some time he sat gazing stupidly at the paper. The telescreen was making a creaking noise. He could not help feeling a twinge of panic. To mark the paper was the decisive act.\n\nIn small clumsy letters he wrote:\n\nApril 4th, 1984.\n\nHe sat back. A sense of complete helplessness had descended upon him. To begin with, he did not know with any certainty that this was 1984. But the diary was a physical impossibility. Whether he went on with the diary, or whether he did not go on with it, made no difference. The Thought Police would get him just the same.",
+      "choices": [
+        {
+          "id": "choice_write_down_with_bb",
+          "text": "Write 'DOWN WITH BIG BROTHER' repeatedly",
+          "nextNode": "chapter1_dangerous_thoughts",
+          "requirements": {},
+          "effects": {
+            "partyLoyalty": -20,
+            "suspicion": 25,
+            "flags": ["written_sedition"]
+          }
+        },
+        {
+          "id": "choice_describe_two_minutes_hate",
+          "text": "Describe your experience of the Two Minutes Hate",
+          "nextNode": "chapter1_hate_reflection",
+          "requirements": {},
+          "effects": {
+            "partyLoyalty": -5,
+            "suspicion": 10,
+            "flags": ["analyzed_hate"]
+          }
+        },
+        {
+          "id": "choice_hide_diary",
+          "text": "Hide the diary immediately, overcome with fear",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "partyLoyalty": 0,
+            "suspicion": 5,
+            "flags": ["diary_hidden"]
+          }
+        }
+      ]
+    },
+    "prologue_telescreen_awareness": {
+      "id": "prologue_telescreen_awareness",
+      "type": "scene",
+      "chapter": 0,
+      "title": "The Watching Eye",
+      "description": "Winston becomes acutely aware of surveillance",
+      "requiredFlags": [],
+      "ascii_art_template": "winston_flat",
+      "narrative": "Your eyes dart to the telescreen mounted on the wall. The face of Big Brother stares back from its dark surface, even when supposedly inactive. You know the telescreen can never be fully turned off. It sees you. It hears you. It records everything.\n\nA chill runs down your spine as you realize how exposed you are in this moment. The hallway, the entrance, every corner of Victory Mansions—all watched.",
+      "choices": [
+        {
+          "id": "choice_compose_yourself",
+          "text": "Compose yourself and proceed to your flat calmly",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "suspicion": 1,
+            "partyLoyalty": 3
+          }
+        },
+        {
+          "id": "choice_smile_at_screen",
+          "text": "Smile dutifully at the telescreen before going inside",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "suspicion": -2,
+            "partyLoyalty": 8
+          }
+        }
+      ]
+    },
+    "prologue_morning_exercises": {
+      "id": "prologue_morning_exercises",
+      "type": "scene",
+      "chapter": 0,
+      "title": "Physical Jerks",
+      "description": "The mandatory morning exercise routine",
+      "requiredFlags": [],
+      "ascii_art_template": "winston_flat",
+      "narrative": "The telescreen barks orders in a harsh female voice. 'Smith! 6079 Smith W! Yes, YOU! Bend lower, please! You can do better than that. You're not trying. Lower, please!'\n\nYou touch your toes repeatedly, your joints protesting. Around you, in countless other flats, thousands of citizens perform the same motions in unison. The Party exercises its control even over your muscles.",
+      "choices": [
+        {
+          "id": "choice_exercise_enthusiastically",
+          "text": "Perform the exercises with visible enthusiasm",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "suspicion": -5,
+            "partyLoyalty": 10
+          }
+        },
+        {
+          "id": "choice_exercise_mechanically",
+          "text": "Complete the routine mechanically, just enough to pass",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "suspicion": 2,
+            "partyLoyalty": 2
+          }
+        }
+      ]
+    },
+    "prologue_ministry_view": {
+      "id": "prologue_ministry_view",
+      "type": "scene",
+      "chapter": 0,
+      "title": "The Ministry of Truth",
+      "description": "Winston gazes at his workplace",
+      "requiredFlags": [],
+      "ascii_art_template": "winston_flat",
+      "narrative": "Through the grimy window, the Ministry of Truth looms three hundred meters away. The white concrete pyramid rises into the sky, bearing its three slogans:\n\nWAR IS PEACE\nFREEDOM IS SLAVERY\nIGNORANCE IS STRENGTH\n\nYour workplace. Where history is rewritten, where truth is manufactured, where the past is continuously altered to fit the Party's present needs.",
+      "choices": [
+        {
+          "id": "choice_think_about_work",
+          "text": "Think about today's assignments with dutiful focus",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "partyLoyalty": 5,
+            "suspicion": -2
+          }
+        },
+        {
+          "id": "choice_feel_unease",
+          "text": "Feel a growing unease about the work you do there",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "thoughtcrime": 5,
+            "suspicion": 3
+          }
+        }
+      ]
+    },
+    "chapter1_dangerous_thoughts": {
+      "id": "chapter1_dangerous_thoughts",
+      "type": "scene",
+      "chapter": 1,
+      "title": "Sedition",
+      "description": "Winston writes his dangerous thoughts",
+      "requiredFlags": ["written_sedition"],
+      "ascii_art_template": "diary_page",
+      "narrative": "Your hand moves almost of its own accord. DOWN WITH BIG BROTHER. The words appear again and again, filling half a page. A kind of feverish intensity possesses you.\n\nYou stare at what you've written. These words, if discovered, mean certain death. Not just death—torture, confession, public disgrace, vaporization. It would be as if you had never existed.\n\nYet you feel strangely liberated. The thoughtcrime has been committed. The rest is merely consequences.",
+      "choices": [
+        {
+          "id": "choice_continue_writing",
+          "text": "Continue writing your true feelings",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "thoughtcrime": 15,
+            "suspicion": 10,
+            "partyLoyalty": -15
+          }
+        },
+        {
+          "id": "choice_stop_and_hide",
+          "text": "Stop and hide the diary, terrified by what you've done",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "thoughtcrime": 5,
+            "suspicion": 8
+          }
+        }
+      ]
+    },
+    "chapter1_hate_reflection": {
+      "id": "chapter1_hate_reflection",
+      "type": "scene",
+      "chapter": 1,
+      "title": "The Two Minutes Hate",
+      "description": "Reflecting on the daily ritual",
+      "requiredFlags": ["analyzed_hate"],
+      "ascii_art_template": "diary_page",
+      "narrative": "You write about the Two Minutes Hate—that daily ritual where Emmanuel Goldstein's face appears on the telescreen and the entire office erupts in screaming fury. You describe the hatred, how it spreads like electricity through the crowd.\n\nBut you also write something dangerous: your observation that the hatred is hollow, manufactured. That people scream not from genuine feeling but from fear of not screaming loudly enough.\n\nThis analysis itself is thoughtcrime. The Party doesn't want you to think about the Hate—only to feel it.",
+      "choices": [
+        {
+          "id": "choice_analyze_deeper",
+          "text": "Continue analyzing the Party's manipulation techniques",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "thoughtcrime": 12,
+            "suspicion": 8,
+            "partyLoyalty": -10
+          }
+        },
+        {
+          "id": "choice_stop_analysis",
+          "text": "Stop analyzing and hide the dangerous thoughts",
+          "nextNode": "prologue_inside_flat",
+          "requirements": {},
+          "effects": {
+            "thoughtcrime": 3,
+            "suspicion": 5
+          }
+        }
+      ]
+    }
+  },
+  "edges": [
+    {
+      "from": "prologue_start",
+      "to": "prologue_poster_observation",
+      "condition": "choice_observe_poster"
+    },
+    {
+      "from": "prologue_start",
+      "to": "prologue_inside_flat",
+      "condition": "choice_hurry_inside"
+    },
+    {
+      "from": "prologue_start",
+      "to": "prologue_telescreen_awareness",
+      "condition": "choice_check_telescreen"
+    },
+    {
+      "from": "prologue_poster_observation",
+      "to": "prologue_inside_flat",
+      "condition": "always"
+    },
+    {
+      "from": "prologue_inside_flat",
+      "to": "chapter1_diary_writing",
+      "condition": "choice_write_diary"
+    }
+  ],
+  "metadata": {
+    "totalNodes": 5,
+    "totalEdges": 5,
+    "endingNodes": 0,
+    "criticalPathNodes": 3,
+    "lastUpdated": "2026-01-03T00:00:00Z",
+    "notes": "This is a starter template. Expand with more scenes based on the game design document."
+  }
+}
