@@ -1,0 +1,585 @@
+{
+  "version": "1.0.0",
+  "description": "Story beats from George Orwell's 1984 - Key moments that guide the narrative",
+  "beats": {
+    "buy_diary": {
+      "id": "buy_diary",
+      "title": "The Forbidden Purchase",
+      "description": "Winston buys a cream-colored diary from Charrington's shop in the prole district",
+      "chapter": 1,
+      "priority": "high",
+      "prerequisites": {
+        "min_thoughtcrime": 3,
+        "flags_required": [],
+        "flags_forbidden": ["has_diary"]
+      },
+      "triggers": {
+        "locations": ["prole_district", "charringtons_shop"],
+        "keywords": ["buy", "purchase", "shop", "diary", "book", "paper", "write"],
+        "npc_present": ["charrington"]
+      },
+      "nudges": [
+        "You pass by the prole districts on your way home. The junk shop window glints in the fading light.",
+        "A memory surfaces: that dusty shop with the old man, filled with relics of the past.",
+        "You need something - a place for your thoughts where the Party cannot reach."
+      ],
+      "environmental_cues": [
+        "The narrow streets of the prole quarter seem to call to you",
+        "An old paperweight catches your eye through a grimy shop window",
+        "Mr. Charrington's shop stands unchanged, frozen in time"
+      ],
+      "completion": {
+        "flags_set": ["has_diary", "visited_charringtons"],
+        "stats": {
+          "thoughtcrime": 8,
+          "suspicion": 5,
+          "partyLoyalty": -5
+        },
+        "inventory_add": ["diary", "pen"],
+        "narrative": "The diary now weighs heavy in your pocket - a dangerous possession, a vessel for thoughtcrime."
+      },
+      "next_beats": ["write_in_diary"],
+      "skip_path": {
+        "description": "Winston may express rebellion differently without a diary",
+        "alternate_beats": ["verbal_rebellion", "meet_julia_early"],
+        "consequences": "Story continues but some introspective moments are lost"
+      }
+    },
+    "write_in_diary": {
+      "id": "write_in_diary",
+      "title": "The First Thoughtcrime",
+      "description": "Winston commits his first deliberate thoughtcrime by writing in the diary",
+      "chapter": 1,
+      "priority": "critical",
+      "prerequisites": {
+        "flags_required": ["has_diary"],
+        "min_thoughtcrime": 5,
+        "location": "winston_flat"
+      },
+      "triggers": {
+        "keywords": ["write", "diary", "pen", "thoughts", "down with big brother"],
+        "conditions": {
+          "alone": true,
+          "in_alcove": true
+        }
+      },
+      "nudges": [
+        "The diary sits unopened in your drawer. Its blank pages seem to accuse you of cowardice.",
+        "You find yourself in the alcove again, out of sight of the telescreen. The pen feels heavy in your hand.",
+        "The urge to write, to express what you truly feel, becomes almost overwhelming."
+      ],
+      "environmental_cues": [
+        "The alcove offers privacy - the telescreen cannot see you here",
+        "The scratching of pen on paper would be inaudible over the telescreen's drone",
+        "You are alone. This is your moment."
+      ],
+      "completion": {
+        "flags_set": ["diary_started", "first_thoughtcrime_committed", "written_sedition"],
+        "stats": {
+          "thoughtcrime": 25,
+          "suspicion": 12,
+          "partyLoyalty": -20
+        },
+        "narrative": "DOWN WITH BIG BROTHER. The words stare back from the page. You have crossed a line that cannot be uncrossed. Death is now certain - only the timing remains in question.",
+        "timestamp_saved": true
+      },
+      "next_beats": ["two_minutes_hate", "meet_julia", "notice_obrien"],
+      "skip_path": null
+    },
+    "two_minutes_hate": {
+      "id": "two_minutes_hate",
+      "title": "The Two Minutes Hate",
+      "description": "Winston participates in the daily Two Minutes Hate ritual",
+      "chapter": 1,
+      "priority": "medium",
+      "prerequisites": {
+        "location": "ministry_corridor"
+      },
+      "triggers": {
+        "time_of_day": ["11:00"],
+        "keywords": ["hate", "goldstein", "participate", "watch"],
+        "npc_present_any": ["parsons", "julia", "obrien"]
+      },
+      "nudges": [
+        "The familiar chime sounds - the Two Minutes Hate is about to begin.",
+        "Telescreens around the Ministry flicker to life. It's time for the Hate.",
+        "Your co-workers begin filing into the viewing area. The ritual is mandatory."
+      ],
+      "environmental_cues": [
+        "The telescreen's tone shifts to the harsh opening notes of the Hate",
+        "Emmanuel Goldstein's hated face appears on every screen",
+        "The crowd around you begins their crescendo of fury"
+      ],
+      "completion": {
+        "flags_set": ["participated_in_hate"],
+        "stats": {
+          "partyLoyalty": 5,
+          "suspicion": -3
+        },
+        "narrative": "The Hate reaches its climax. You shout along with the crowd, your throat raw. Afterward, you feel both exhausted and disturbed by how easily the fury came.",
+        "optional_consequences": [
+          {
+            "condition": "noticed_julia",
+            "flags_set": ["saw_julia_at_hate"],
+            "narrative": "During the Hate, you noticed the dark-haired girl. For a moment, your eyes met."
+          },
+          {
+            "condition": "noticed_obrien",
+            "flags_set": ["saw_obrien_at_hate", "obrien_connection"],
+            "narrative": "O'Brien's eyes met yours for just a second. In that moment, you felt a flash of understanding - he knows. He knows what you are."
+          }
+        ]
+      },
+      "next_beats": ["meet_julia", "notice_obrien"],
+      "skip_path": {
+        "description": "Missing the Hate raises suspicion",
+        "stats": {
+          "suspicion": 10,
+          "partyLoyalty": -5
+        }
+      }
+    },
+    "meet_julia": {
+      "id": "meet_julia",
+      "title": "The Note",
+      "description": "Julia slips Winston a note that says 'I love you'",
+      "chapter": 2,
+      "priority": "critical",
+      "prerequisites": {
+        "min_thoughtcrime": 15,
+        "min_chapter": 1,
+        "flags_forbidden": ["met_julia"]
+      },
+      "triggers": {
+        "locations": ["ministry_corridor", "ministry_canteen"],
+        "keywords": ["julia", "girl", "dark-haired", "note", "paper"],
+        "npc_present": ["julia"]
+      },
+      "nudges": [
+        "The dark-haired girl from the Fiction Department has been nearby often lately. Too often to be coincidence.",
+        "She's there again - the girl with the scarlet sash. She glances at you, then away.",
+        "As you walk down the corridor, someone brushes past you. You feel something pressed into your hand."
+      },
+      "environmental_cues": [
+        "Julia is in the corridor ahead, carrying a wrench and some mechanical parts",
+        "The girl trips slightly near you, papers scattering",
+        "A crowd provides cover in the canteen"
+      ],
+      "completion": {
+        "flags_set": ["met_julia", "received_note", "julia_loves_winston"],
+        "stats": {
+          "thoughtcrime": 30,
+          "suspicion": 3,
+          "partyLoyalty": -15
+        },
+        "relationships": {
+          "julia": {
+            "status": "secret_admirer",
+            "trust_level": 40
+          }
+        },
+        "narrative": "The note burns in your palm: 'I love you.' Your heart pounds. This changes everything. The girl you thought was a Thought Police spy is an ally - or is it a trap?",
+        "inventory_add": ["julias_note"]
+      },
+      "next_beats": ["arrange_meeting_julia", "doubt_julia"],
+      "skip_path": {
+        "description": "Julia may approach differently or Winston misses the opportunity",
+        "alternate_beats": ["julia_direct_approach", "lonely_rebellion"],
+        "consequences": "Winston's rebellion remains solitary"
+      }
+    },
+    "arrange_meeting_julia": {
+      "id": "arrange_meeting_julia",
+      "title": "Planning the Rendezvous",
+      "description": "Winston and Julia arrange to meet in secret",
+      "chapter": 2,
+      "priority": "high",
+      "prerequisites": {
+        "flags_required": ["received_note"],
+        "min_thoughtcrime": 20
+      },
+      "triggers": {
+        "locations": ["ministry_corridor", "victory_square"],
+        "keywords": ["meet", "julia", "where", "when", "arrange"],
+        "npc_present": ["julia"]
+      },
+      "nudges": [
+        "You see Julia in the corridor again. There must be a way to respond to her note safely.",
+        "Victory Square at lunch - crowded enough to talk without being heard.",
+        "You need to find a way to communicate with her without the telescreens seeing."
+      ],
+      "completion": {
+        "flags_set": ["meeting_arranged"],
+        "stats": {
+          "thoughtcrime": 5,
+          "suspicion": 5
+        },
+        "narrative": "Through careful, whispered exchanges in the crowd, a meeting is arranged. Sunday afternoon, the countryside. Your heart races with anticipation and fear."
+      },
+      "next_beats": ["first_meeting_julia"],
+      "skip_path": null
+    },
+    "first_meeting_julia": {
+      "id": "first_meeting_julia",
+      "title": "The Golden Country",
+      "description": "Winston and Julia's first meeting in the countryside",
+      "chapter": 2,
+      "priority": "critical",
+      "prerequisites": {
+        "flags_required": ["meeting_arranged"],
+        "location": "countryside"
+      },
+      "triggers": {
+        "keywords": ["julia", "meet", "talk", "kiss"],
+        "npc_present": ["julia"],
+        "conditions": {
+          "alone": true
+        }
+      },
+      "nudges": [
+        "The agreed-upon time approaches. The countryside awaits.",
+        "You board the train to the countryside, your heart pounding with anticipation and fear."
+      ],
+      "completion": {
+        "flags_set": ["affair_begun", "first_intimacy", "golden_country_visited"],
+        "stats": {
+          "thoughtcrime": 40,
+          "suspicion": 2,
+          "partyLoyalty": -25
+        },
+        "relationships": {
+          "julia": {
+            "status": "lover",
+            "trust_level": 80
+          }
+        },
+        "narrative": "In a clearing surrounded by bluebells, Julia kisses you. 'I'm corrupt to the bones,' she says proudly. This act of love is an act of rebellion. For the first time in years, you feel alive.",
+        "location_unlocked": "countryside_clearing"
+      },
+      "next_beats": ["rent_room", "continue_affair", "obrien_contact"],
+      "skip_path": null
+    },
+    "rent_room": {
+      "id": "rent_room",
+      "title": "The Room Above the Shop",
+      "description": "Winston rents the room above Charrington's shop for meetings with Julia",
+      "chapter": 2,
+      "priority": "high",
+      "prerequisites": {
+        "flags_required": ["affair_begun"],
+        "location": "charringtons_shop"
+      },
+      "triggers": {
+        "keywords": ["rent", "room", "upstairs", "charrington", "private"],
+        "npc_present": ["charrington"]
+      },
+      "nudges": [
+        "Meeting in the countryside is dangerous and infrequent. You need somewhere safer, more private.",
+        "You remember the room upstairs at Charrington's shop. The old man might rent it.",
+        "Julia mentions wanting a place where you can truly be alone."
+      },
+      "completion": {
+        "flags_set": ["rented_room", "secret_hideout"],
+        "stats": {
+          "thoughtcrime": 10,
+          "suspicion": 15
+        },
+        "resources": {
+          "chocolate": -1
+        },
+        "narrative": "Charrington agrees to rent you the room. It's furnished with relics of the past - a double bed, a gateleg table, and an old print of St. Clement's Dane. No telescreen, he assures you. A sanctuary.",
+        "location_unlocked": "room_above_shop"
+      },
+      "next_beats": ["continue_affair", "buy_paperweight", "obrien_contact"],
+      "skip_path": {
+        "description": "Affair continues in more dangerous circumstances",
+        "stats": {
+          "suspicion": 8
+        }
+      }
+    },
+    "obrien_contact": {
+      "id": "obrien_contact",
+      "title": "O'Brien's Approach",
+      "description": "O'Brien makes contact and hints at the Brotherhood",
+      "chapter": 2,
+      "priority": "critical",
+      "prerequisites": {
+        "min_thoughtcrime": 40,
+        "flags_required_any": ["saw_obrien_at_hate", "noticed_obrien"]
+      },
+      "triggers": {
+        "locations": ["ministry_corridor"],
+        "keywords": ["obrien", "speak", "talk", "brotherhood"],
+        "npc_present": ["obrien"]
+      },
+      "nudges": [
+        "O'Brien catches your eye in the corridor. He seems to be waiting for you.",
+        "O'Brien mentions something about the new Newspeak dictionary. His tone suggests... something more.",
+        "You feel O'Brien watching you. Not with suspicion, but with understanding."
+      ],
+      "completion": {
+        "flags_set": ["obrien_contacted", "knows_address"],
+        "stats": {
+          "thoughtcrime": 10
+        },
+        "relationships": {
+          "obrien": {
+            "status": "potential_ally",
+            "trust_level": 50
+          }
+        },
+        "narrative": "O'Brien speaks to you about the Newspeak dictionary, giving you his address. But his eyes say something else: 'I know what you are. Come to me.' Is he Brotherhood, or is this a trap?",
+        "inventory_add": ["obriens_address"]
+      },
+      "next_beats": ["visit_obrien"],
+      "skip_path": {
+        "description": "Winston never joins the Brotherhood",
+        "alternate_beats": ["independent_rebellion"],
+        "consequences": "No access to Goldstein's book, different path to arrest"
+      }
+    },
+    "visit_obrien": {
+      "id": "visit_obrien",
+      "title": "The Brotherhood",
+      "description": "Winston and Julia visit O'Brien and join the Brotherhood",
+      "chapter": 2,
+      "priority": "critical",
+      "prerequisites": {
+        "flags_required": ["obrien_contacted", "knows_address"],
+        "min_thoughtcrime": 50
+      },
+      "triggers": {
+        "location": "obriens_apartment",
+        "keywords": ["brotherhood", "join", "goldstein", "rebel"],
+        "npcs_present": ["obrien"]
+      },
+      "nudges": [
+        "The address burns in your pocket. O'Brien is waiting for you to make a choice.",
+        "Julia asks about O'Brien. The time has come to take the next step."
+      },
+      "completion": {
+        "flags_set": ["joined_brotherhood", "took_oath", "awaiting_book"],
+        "stats": {
+          "thoughtcrime": 80,
+          "suspicion": 10,
+          "partyLoyalty": -60
+        },
+        "relationships": {
+          "obrien": {
+            "status": "brotherhood_contact",
+            "trust_level": 70
+          }
+        },
+        "narrative": "O'Brien turns off the telescreen. 'We are the dead,' you say. The oath is taken. You and Julia are now members of the Brotherhood, dedicated to the overthrow of the Party. O'Brien promises to send you Goldstein's book."
+      },
+      "next_beats": ["receive_goldsteins_book"],
+      "skip_path": null
+    },
+    "receive_goldsteins_book": {
+      "id": "receive_goldsteins_book",
+      "title": "The Theory and Practice",
+      "description": "Winston receives Goldstein's forbidden book",
+      "chapter": 2,
+      "priority": "high",
+      "prerequisites": {
+        "flags_required": ["joined_brotherhood"]
+      },
+      "triggers": {
+        "keywords": ["book", "goldstein", "theory", "read"],
+        "item_obtained": "goldsteins_book"
+      },
+      "nudges": [
+        "A package arrives at work, disguised as a ministry document. Inside: the book.",
+        "O'Brien's messenger delivers the promised item."
+      ],
+      "completion": {
+        "flags_set": ["has_goldsteins_book"],
+        "stats": {
+          "thoughtcrime": 10
+        },
+        "inventory_add": ["goldsteins_book"],
+        "narrative": "The book is in your hands: 'The Theory and Practice of Oligarchical Collectivism' by Emmanuel Goldstein. The secrets of the Party, the truth behind the lies."
+      },
+      "next_beats": ["read_goldsteins_book"],
+      "skip_path": null
+    },
+    "read_goldsteins_book": {
+      "id": "read_goldsteins_book",
+      "title": "The Truth Revealed",
+      "description": "Winston reads Goldstein's book and learns the truth about the Party",
+      "chapter": 3,
+      "priority": "medium",
+      "prerequisites": {
+        "flags_required": ["has_goldsteins_book"],
+        "location": "room_above_shop"
+      },
+      "triggers": {
+        "keywords": ["read", "book", "goldstein", "truth"]
+      },
+      "nudges": [
+        "The book lies waiting. Julia is asleep. You could read it now.",
+        "You open the book and begin to read about the structure of Oceania's society."
+      },
+      "completion": {
+        "flags_set": ["read_goldsteins_book", "understands_party"],
+        "stats": {
+          "thoughtcrime": 10
+        },
+        "narrative": "The book explains everything: war is a fraud, the proles are the only hope, the Party's purpose is power for its own sake. WAR IS PEACE. FREEDOM IS SLAVERY. IGNORANCE IS STRENGTH. The slogans make terrible sense now."
+      },
+      "next_beats": ["arrest"],
+      "skip_path": null
+    },
+    "arrest": {
+      "id": "arrest",
+      "title": "The Thought Police Come",
+      "description": "Winston and Julia are arrested in the room above the shop",
+      "chapter": 3,
+      "type": "critical_event",
+      "priority": "critical",
+      "prerequisites": {
+        "flags_required": ["rented_room"]
+      },
+      "triggers": {
+        "suspicion_threshold": 85,
+        "flags_required_any": ["read_goldsteins_book", "months_passed"],
+        "location": "room_above_shop"
+      },
+      "automatic": {
+        "description": "This beat triggers automatically after enough time passes or suspicion is high enough",
+        "conditions": {
+          "time_in_room": "sufficient",
+          "OR": {
+            "suspicion": 85,
+            "flags": ["read_goldsteins_book"]
+          }
+        }
+      },
+      "completion": {
+        "flags_set": ["arrested", "betrayed_by_charrington"],
+        "narrative": "The telescreen in the room above the shop comes to life - it was there all along. 'You are the dead,' it says. Charrington appears, transformed - a Thought Police officer. It was all a trap. You are arrested.",
+        "location": "ministry_of_love"
+      },
+      "next_beats": ["interrogation", "room_101"],
+      "skip_path": null
+    },
+    "interrogation": {
+      "id": "interrogation",
+      "title": "The Ministry of Love",
+      "description": "Winston is interrogated and tortured by O'Brien",
+      "chapter": 3,
+      "type": "critical_event",
+      "priority": "critical",
+      "prerequisites": {
+        "flags_required": ["arrested"],
+        "location": "ministry_of_love"
+      },
+      "automatic": true,
+      "completion": {
+        "flags_set": ["interrogated", "betrayed_julia", "broken"],
+        "stats": {
+          "thoughtcrime": -30,
+          "partyLoyalty": 30
+        },
+        "narrative": "O'Brien is your interrogator. Everything was a lie - the Brotherhood, the book, all a trap. The torture continues until you confess to everything, betray everyone. But still it's not enough. There is one final room."
+      },
+      "next_beats": ["room_101"],
+      "skip_path": null
+    },
+    "room_101": {
+      "id": "room_101",
+      "title": "Room 101",
+      "description": "Winston faces his worst fear in Room 101",
+      "chapter": 3,
+      "type": "ending_trigger",
+      "priority": "critical",
+      "prerequisites": {
+        "flags_required": ["interrogated"],
+        "location": "ministry_of_love"
+      },
+      "automatic": true,
+      "completion": {
+        "flags_set": ["room_101_completed", "truly_broken", "loves_big_brother"],
+        "stats": {
+          "thoughtcrime": -100,
+          "partyLoyalty": 100,
+          "suspicion": 0
+        },
+        "narrative": "The rats. Your worst fear. They bring them closer. You break completely. 'Do it to Julia!' you scream. You have betrayed the last human emotion. You are truly broken.",
+        "ending": "canonical_ending"
+      },
+      "next_beats": ["canonical_ending"],
+      "skip_path": null
+    },
+    "canonical_ending": {
+      "id": "canonical_ending",
+      "title": "He Loved Big Brother",
+      "description": "Winston's final fate, broken and loving Big Brother",
+      "chapter": 3,
+      "type": "ending",
+      "priority": "critical",
+      "prerequisites": {
+        "flags_required": ["room_101_completed"]
+      },
+      "automatic": true,
+      "ending_data": {
+        "type": "canonical",
+        "title": "He Loved Big Brother",
+        "narrative": "You sit in the Chestnut Tree Café, drinking gin. News of victory plays on the telescreen. You think of Julia, met by chance - two ghosts passing. The love is gone. The rebellion is dust.\n\nYou gaze up at the enormous face. Forty years it had taken to learn what kind of smile was hidden beneath the dark mustache. O cruel, needless misunderstanding! Two gin-scented tears trickle down your nose.\n\nBut it was all right, everything was all right, the struggle was finished. You had won the victory over yourself.\n\nYou loved Big Brother.",
+        "stats_shown": true,
+        "achievement": "completed_1984"
+      }
+    }
+  },
+  "alternate_endings": {
+    "arrested_early": {
+      "id": "arrested_early",
+      "title": "Vaporized",
+      "type": "ending",
+      "trigger_conditions": {
+        "suspicion": 100,
+        "flags_not_required": ["arrested"]
+      },
+      "narrative": "Your suspicion level reached critical. The Thought Police came in the night. You are arrested before the major events unfold. After interrogation, you are vaporized. You cease to exist. All records of Winston Smith are destroyed."
+    },
+    "escape_attempt": {
+      "id": "escape_attempt",
+      "title": "Death While Fleeing",
+      "type": "ending",
+      "trigger_conditions": {
+        "keywords": ["escape", "flee", "run"],
+        "suspicion": 70
+      },
+      "narrative": "You attempt to flee Oceania. It is impossible. The Party controls everything. You are shot while trying to escape. A quick death - perhaps a mercy compared to Room 101."
+    },
+    "suicide": {
+      "id": "suicide",
+      "title": "Final Act of Rebellion",
+      "type": "ending",
+      "trigger_conditions": {
+        "keywords": ["kill myself", "suicide", "jump", "end it"],
+        "thoughtcrime": 60
+      },
+      "narrative": "You throw yourself from the roof of the Ministry. In your final moment, you are free. The Party cannot break you. You die with your thoughts still your own."
+    },
+    "disappear_proles": {
+      "id": "disappear_proles",
+      "title": "Lost Among the Proles",
+      "type": "ending",
+      "trigger_conditions": {
+        "location": "prole_district",
+        "flags": ["abandoned_identity"],
+        "suspicion": 80
+      },
+      "narrative": "You disappear into the prole districts, abandoning your identity as Winston Smith. The Party searches but cannot find you among the masses. You live in obscurity, poor but free in a way Party members can never be. But you are always looking over your shoulder."
+    }
+  },
+  "metadata": {
+    "total_beats": 18,
+    "critical_beats": 10,
+    "optional_beats": 8,
+    "endings": 5,
+    "last_updated": "2026-01-07"
+  }
+}
