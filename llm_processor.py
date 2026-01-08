@@ -1,6 +1,6 @@
 """
-LLM Processor for 1984 CLI Game
-Handles Claude API integration for processing natural language input
+LLM Processor for 1984 CLI Game (Refactored for Open-World)
+Handles Claude API integration - now integrates with GameMaster for open-world actions
 """
 
 import os
@@ -8,12 +8,16 @@ from typing import Dict, Any, List, Optional
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
+# Import new systems
+from game_master import GameMaster
+from action_validator import ActionValidator
+
 # Load environment variables from .env file
 load_dotenv()
 
 
 class LLMProcessor:
-    """Processes user input using Claude API to map to game actions"""
+    """Processes user input using Claude API - now with open-world support"""
 
     def __init__(self, api_key: Optional[str] = None):
         """Initialize the LLM processor with Anthropic API key"""
@@ -24,10 +28,109 @@ class LLMProcessor:
         self.client = Anthropic(api_key=self.api_key)
         self.model = "claude-3-5-sonnet-20241022"
 
+        # Initialize GameMaster for open-world processing
+        self.game_master = GameMaster(self.api_key)
+
+    # =============================================================================
+    # NEW OPEN-WORLD METHODS
+    # =============================================================================
+
+    def process_open_world_action(self, user_input: str, world_state: Dict[str, Any],
+                                   story_progress: Dict[str, Any], next_beat: Optional[Dict] = None) -> Dict[str, Any]:
+        """
+        Process open-world user action (NEW METHOD)
+
+        Args:
+            user_input: What the player wants to do
+            world_state: Complete current world state
+            story_progress: Story beat progression
+            next_beat: Next suggested story beat
+
+        Returns:
+            {
+                "type": "success" | "invalid" | "error",
+                "narrative": str,
+                "state_changes": dict,
+                "beat_completed": str | None,
+                "ending_triggered": str | None,
+                "nudge": str | None,
+                "reason": str (if invalid)
+            }
+        """
+
+        # 1. Validate the action
+        validator = ActionValidator(world_state)
+        is_valid, reason, context = validator.validate_action(user_input)
+
+        if not is_valid:
+            return {
+                "type": "invalid",
+                "narrative": reason,
+                "reason": reason,
+                "state_changes": {},
+                "beat_completed": None,
+                "ending_triggered": None,
+                "nudge": None
+            }
+
+        # 2. Process with Game Master
+        try:
+            result = self.game_master.process_action(
+                user_input,
+                world_state,
+                story_progress,
+                next_beat
+            )
+
+            result["type"] = "success"
+            return result
+
+        except Exception as e:
+            print(f"Error in open-world processing: {e}")
+            return {
+                "type": "error",
+                "narrative": f"You attempt to {user_input}. The moment passes, heavy with the oppressive weight of Oceania.",
+                "state_changes": {},
+                "beat_completed": None,
+                "ending_triggered": None,
+                "nudge": None,
+                "reason": str(e)
+            }
+
+    def generate_scene_description(self, location_id: str, world_state: Dict[str, Any]) -> str:
+        """
+        Generate scene description for current location
+
+        Args:
+            location_id: Current location ID
+            world_state: Current world state
+
+        Returns:
+            Scene narrative in Orwell's style
+        """
+        try:
+            context = {
+                'time': world_state.get('date', 'April 4, 1984') + " " + world_state.get('time_of_day', 'morning'),
+                'stats': world_state.get('stats', {}),
+                'recent_events': [a.get('action', '') for a in world_state.get('recent_actions', [])][-3:]
+            }
+
+            return self.game_master.generate_scene_description(location_id, context)
+
+        except Exception as e:
+            print(f"Error generating scene: {e}")
+            from world_definitions import get_location
+            location = get_location(location_id)
+            return location.description if location else "You find yourself in an unfamiliar place."
+
+    # =============================================================================
+    # BACKWARD COMPATIBILITY METHODS (for old choice-based system)
+    # =============================================================================
+
     def process_user_input(self, user_input: str, available_choices: List[Dict[str, Any]],
                           current_scene: Dict[str, Any], game_state: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Process user's natural language input and map to game action
+        Process user's natural language input and map to game action (OLD METHOD - backward compatibility)
 
         Returns:
             {
@@ -76,7 +179,7 @@ class LLMProcessor:
 
     def _build_prompt(self, user_input: str, available_choices: List[Dict[str, Any]],
                      current_scene: Dict[str, Any], game_state: Dict[str, Any]) -> str:
-        """Build the prompt for Claude to interpret user input"""
+        """Build the prompt for Claude to interpret user input (OLD METHOD)"""
 
         scene_title = current_scene.get("title", "")
         scene_narrative = current_scene.get("narrative", "")
@@ -125,7 +228,7 @@ Examples:
         return prompt
 
     def _parse_llm_response(self, response_text: str, available_choices: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Parse Claude's response into a structured result"""
+        """Parse Claude's response into a structured result (OLD METHOD)"""
 
         lines = response_text.strip().split('\n')
 
@@ -168,7 +271,7 @@ Examples:
 
     def generate_contextual_narrative(self, scene: Dict[str, Any], previous_choice: str,
                                      game_state: Dict[str, Any]) -> str:
-        """Generate additional contextual narrative based on player's journey"""
+        """Generate additional contextual narrative based on player's journey (OLD METHOD)"""
 
         scene_title = scene.get("title", "")
         stats = game_state.get("stats", {})
