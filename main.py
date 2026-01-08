@@ -12,17 +12,21 @@ from state_manager import StateManager
 from narrative_engine import NarrativeEngine
 from display import Display, Colors
 from llm_processor import LLMProcessor
+from ending_manager import EndingManager
+from world_definitions import get_location
 
 
 class Game:
     """Main game controller"""
 
-    def __init__(self):
+    def __init__(self, use_open_world: bool = True):
         self.state_manager = StateManager()
         self.narrative_engine = NarrativeEngine()
         self.display = Display()
         self.llm_processor = None
+        self.ending_manager = EndingManager()
         self.running = False
+        self.use_open_world = use_open_world  # Toggle between old and new system
 
     def initialize(self) -> bool:
         """Initialize the game systems"""
@@ -104,7 +108,12 @@ class Game:
             input(f"{Colors.DIM}Press Enter to continue...{Colors.RESET}")
 
         self.running = True
-        self.game_loop()
+
+        # Route to appropriate game loop
+        if self.use_open_world:
+            self.open_world_game_loop()
+        else:
+            self.game_loop()
 
     def game_loop(self):
         """Main game loop"""
@@ -400,6 +409,122 @@ Keep it atmospheric and true to 1984's tone. DO NOT mention technical errors or 
         choice_count = len(self.state_manager.state.get("choiceHistory", []))
         print(f"{Colors.DIM}You made {choice_count} choices in your journey through Oceania.{Colors.RESET}\n")
 
+        input(f"{Colors.DIM}Press Enter to exit...{Colors.RESET}")
+
+    # =============================================================================
+    # NEW OPEN-WORLD GAME LOOP
+    # =============================================================================
+
+    def open_world_game_loop(self):
+        """Open-world game loop with LLM-driven actions"""
+        while self.running:
+            # Get current world state
+            world_state = self.state_manager.state
+
+            # Check for ending
+            ending_data = self.ending_manager.check_ending(world_state, "")
+            if ending_data:
+                self.handle_open_world_ending(ending_data)
+                break
+
+            # Get current location
+            location_id = self.state_manager.get_location()
+            location = get_location(location_id)
+            if not location:
+                self.display.print_error(f"Error: Invalid location '{location_id}'")
+                break
+
+            # Generate scene description
+            scene_narrative = self.llm_processor.generate_scene_description(location_id, world_state)
+
+            # Render the scene
+            stats = self.state_manager.get_stats()
+            resources = self.state_manager.get_resources()
+            self.display.render_open_world_scene(scene_narrative, location.name, stats, resources)
+
+            # Get player action (open-ended)
+            player_action = self.get_open_world_action()
+
+            if player_action is None:
+                continue  # Special command processed, loop again
+
+            # Get next suggested beat
+            completed_beats = self.state_manager.get_completed_beats()
+            story_progress = {"completed_beats": completed_beats}
+            next_beat = self.narrative_engine.get_next_suggested_beat(world_state, completed_beats)
+
+            # Process the action through LLM Game Master
+            result = self.llm_processor.process_open_world_action(
+                player_action,
+                world_state,
+                story_progress,
+                next_beat
+            )
+
+            # Handle invalid actions
+            if result["type"] == "invalid":
+                self.display.print_invalid_action(result["narrative"])
+                continue
+
+            # Display narrative result
+            self.display.print_narrative_result(result.get("narrative", ""), result.get("state_changes"))
+
+            # Apply state changes
+            if result.get("state_changes"):
+                self.state_manager.apply_changes(result["state_changes"])
+
+            # Record the action
+            self.state_manager.record_action(player_action, result)
+
+            # Check for beat completion
+            if result.get("beat_completed"):
+                beat = self.narrative_engine.get_beat(result["beat_completed"])
+                if beat:
+                    self.display.print_beat_completed(beat.get("title", "Unknown"))
+                    self.state_manager.complete_beat(result["beat_completed"])
+                    # Apply beat completion effects
+                    self.narrative_engine.apply_beat_completion(result["beat_completed"], self.state_manager)
+
+            # Show nudge if provided
+            if result.get("nudge"):
+                self.display.print_nudge(result["nudge"])
+
+            # Check for ending triggered by this action
+            if result.get("ending_triggered"):
+                ending_data = self.ending_manager.check_ending(world_state, player_action)
+                if ending_data:
+                    self.handle_open_world_ending(ending_data)
+                    break
+
+            # Save state
+            self.state_manager.save_state()
+
+    def get_open_world_action(self) -> Optional[str]:
+        """Get open-ended player input"""
+        user_input = input(f"\n{Colors.CYAN}> {Colors.RESET}").strip()
+
+        if not user_input:
+            return self.get_open_world_action()  # Ask again
+
+        # Handle special commands
+        if user_input.lower() in ['/quit', '/exit', 'quit', 'exit']:
+            confirm = input(f"{Colors.YELLOW}Quit game? Progress will be saved. (y/n): {Colors.RESET}").strip().lower()
+            if confirm == 'y':
+                self.state_manager.save_state()
+                self.display.print_message("\nGame saved. BIG BROTHER IS WATCHING YOU.", Colors.RED)
+                self.running = False
+                sys.exit(0)
+            return None  # Return to loop
+
+        if user_input.lower() in ['/dossier', '/status', '/stats']:
+            self.display.render_detailed_dossier(self.state_manager.state)
+            return None  # Return to loop (will re-render scene)
+
+        return user_input
+
+    def handle_open_world_ending(self, ending_data: Dict):
+        """Handle an ending in the open-world system"""
+        self.display.render_ending(ending_data, self.state_manager.state)
         input(f"{Colors.DIM}Press Enter to exit...{Colors.RESET}")
 
 

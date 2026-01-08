@@ -410,3 +410,138 @@ class Display:
 
         bar = f"{color}{'█' * filled}{'░' * (bar_length - filled)}{Colors.RESET}"
         return f"[{bar}] {value:>3}"
+
+    # =============================================================================
+    # NEW METHODS FOR OPEN-WORLD RENDERING
+    # =============================================================================
+
+    def render_open_world_scene(self, narrative: str, location_name: str, stats: Dict, resources: Dict):
+        """
+        Render an open-world scene with LLM-generated narrative
+
+        Args:
+            narrative: The scene narrative from GameMaster
+            location_name: Name of the current location
+            stats: Player stats
+            resources: Player resources
+        """
+        self.clear_screen()
+
+        # Build left panel (narrative)
+        left_content = []
+
+        # Location header
+        left_content.append(f"{Colors.BOLD}{Colors.CYAN}{'═' * 70}{Colors.RESET}")
+        left_content.append(f"{Colors.BOLD}{Colors.CYAN}{location_name.center(70)}{Colors.RESET}")
+        left_content.append(f"{Colors.BOLD}{Colors.CYAN}{'═' * 70}{Colors.RESET}")
+        left_content.append("")
+
+        # Narrative (word-wrapped)
+        wrapped = self._wrap_text(narrative, 70)
+        left_content.extend(wrapped)
+        left_content.append("")
+        left_content.append("")
+
+        # Prompt for action
+        left_content.append(f"{Colors.BOLD}{Colors.YELLOW}What do you do?{Colors.RESET}")
+        left_content.append(f"{Colors.DIM}(Type any action, or /dossier for stats, /quit to exit){Colors.RESET}")
+
+        # Render split screen with stats on right
+        self.render_split_screen(left_content, stats, resources, location_name)
+
+    def print_narrative_result(self, narrative: str, state_changes: Dict = None):
+        """
+        Print the narrative result of an action
+
+        Args:
+            narrative: The narrative text
+            state_changes: Optional state changes to display
+        """
+        print(f"\n{Colors.GRAY}{narrative}{Colors.RESET}\n")
+
+        # Show stat changes if any
+        if state_changes and "stats" in state_changes:
+            changes = state_changes["stats"]
+            if any(v != 0 for v in changes.values()):
+                change_text = []
+                for stat, value in changes.items():
+                    if value != 0:
+                        sign = "+" if value > 0 else ""
+                        stat_display = stat.replace("partyLoyalty", "Party Loyalty") \
+                                          .replace("suspicionLevel", "Suspicion") \
+                                          .replace("thoughtcrimeIndex", "Thoughtcrime")
+                        color = Colors.GREEN if (stat == "partyLoyalty" and value > 0) else \
+                                Colors.RED if (stat == "suspicionLevel" and value > 0) else \
+                                Colors.YELLOW
+                        change_text.append(f"{color}{sign}{value} {stat_display}{Colors.RESET}")
+
+                if change_text:
+                    print(f"{Colors.DIM}[{', '.join(change_text)}]{Colors.RESET}\n")
+
+    def print_nudge(self, nudge: str):
+        """
+        Print a subtle story nudge
+
+        Args:
+            nudge: The nudge text
+        """
+        if nudge:
+            print(f"{Colors.DIM}{Colors.YELLOW}⚬ {nudge}{Colors.RESET}\n")
+
+    def print_invalid_action(self, reason: str):
+        """
+        Print message for invalid action
+
+        Args:
+            reason: Why the action is invalid
+        """
+        print(f"\n{Colors.YELLOW}⚠ {reason}{Colors.RESET}\n")
+
+    def print_beat_completed(self, beat_title: str):
+        """
+        Print notification that a story beat was completed
+
+        Args:
+            beat_title: Title of the completed beat
+        """
+        print(f"\n{Colors.CYAN}✓ Story Moment: {beat_title}{Colors.RESET}\n")
+
+    def render_ending(self, ending_data: Dict, final_state: Dict):
+        """
+        Render a game ending
+
+        Args:
+            ending_data: Ending data with title and narrative
+            final_state: Final game state
+        """
+        self.clear_screen()
+
+        title = ending_data.get('title', 'THE END')
+        narrative = ending_data.get('narrative', '')
+        stats = final_state.get('stats', {})
+        choice_count = len(final_state.get('choiceHistory', []))
+        beat_count = len(final_state.get('completed_beats', []))
+
+        print(f"\n{Colors.BOLD}{Colors.RED}{'═' * 70}{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.RED}{title.center(70)}{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.RED}{'═' * 70}{Colors.RESET}\n")
+
+        # Print narrative with word wrapping
+        wrapped_narrative = self._wrap_text(narrative, 70)
+        for line in wrapped_narrative:
+            print(f"{Colors.GRAY}{line}{Colors.RESET}")
+
+        print(f"\n{Colors.BOLD}{Colors.CYAN}{'═' * 70}{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.CYAN}{'FINAL STATISTICS'.center(70)}{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.CYAN}{'═' * 70}{Colors.RESET}\n")
+
+        print(f"Party Loyalty: {stats.get('partyLoyalty', 0)}/100")
+        print(f"Suspicion Level: {stats.get('suspicionLevel', 0)}/100")
+        print(f"Thoughtcrime Index: {stats.get('thoughtcrimeIndex', 0)}/100\n")
+
+        print(f"Actions Taken: {choice_count}")
+        print(f"Story Beats Completed: {beat_count}\n")
+
+        print(f"{Colors.BOLD}{Colors.RED}{'═' * 70}{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.RED}{'BIG BROTHER IS WATCHING YOU'.center(70)}{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.RED}{'═' * 70}{Colors.RESET}\n")
